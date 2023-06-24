@@ -29,5 +29,7 @@ contract StakerTest is Test {
 
         console.log(address(staker).balance);
         assertEq(address(staker).balance, (bal + 1 ether + 2 ether));
+
+        console.log(address(exampleExternalContract));
     }
 }
