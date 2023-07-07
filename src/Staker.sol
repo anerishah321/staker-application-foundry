@@ -8,9 +8,9 @@ contract Staker {
     //create a mapping for store users and thier balances
     mapping(address => uint256) public balances;
     //minimum thereshold
-    uint256 public constant threshold = 1e18;
+    uint256 public constant threshold = 2 ether;
     //the deadline for the send tokens to this contract
-    uint256 public deadline = block.timestamp + 30 hours;
+    uint256 public deadline = block.timestamp + 30 seconds;
     //if thersgold not completed create a bool to withdraw
     bool public openForWithdraw;
 
@@ -71,7 +71,7 @@ contract Staker {
             return deadline - block.timestamp;
         }
     }
-    //to rescive balance in stack contract
+    //to recive balance in stack contract
 
     receive() external payable {
         stake();

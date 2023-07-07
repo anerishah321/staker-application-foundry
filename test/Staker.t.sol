@@ -10,13 +10,17 @@ contract StakerTest is Test {
     ExampleExternalContract public exampleExternalContract;
     uint256 public bal = address(staker).balance;
 
-    modifier startAtPresenttime() {
-        vm.warp(block.timestamp);
-        _;
-    }
+    // modifier startAtPresenttime() {
+    //     vm.warp(block.timestamp);
+    //     _;
+    // }
 
-    function setUp() external {
+    function setUp() public {
+        exampleExternalContract = new ExampleExternalContract();
+        //payable (address(exampleExternalContract)) = address(1);
         staker = new Staker(address(exampleExternalContract));
+        console.log(address(exampleExternalContract));
+        console.log(address(staker));
     }
 
     function testStake() public {
@@ -29,7 +33,36 @@ contract StakerTest is Test {
 
         console.log(address(staker).balance);
         assertEq(address(staker).balance, (bal + 1 ether + 2 ether));
+    }
 
-        console.log(address(exampleExternalContract));
+    function testExecute() public {
+        testStake();
+        vm.warp(block.timestamp + 30 seconds);
+        staker.execute();
+
+        assertEq(address(exampleExternalContract).balance, 3 ether);
+    }
+
+    function testExecutionFail() public {
+        vm.deal(address(1), 1 ether);
+        vm.prank(address(1));
+        staker.stake{value: 0.5 ether}();
+        vm.warp(block.timestamp + 30 seconds);
+        staker.execute();
+
+        assertEq(address(exampleExternalContract).balance, 0 ether);
+        assertEq(address(1).balance, 0.5 ether);
+    }
+
+    function testWithdraw() public {
+        vm.deal(address(1), 3 ether);
+        vm.startPrank(address(1));
+        staker.stake{value: 1 ether}();
+        vm.warp(block.timestamp + 30 seconds);
+        console.log(address(staker).balance);
+        staker.execute();
+        staker.withdraw(payable(address(1)));
+
+        assertEq(address(staker).balance, 0 ether);
     }
 }
